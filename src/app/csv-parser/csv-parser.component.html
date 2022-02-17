@@ -1,0 +1,152 @@
+<input
+  type="file"
+  #csvReader
+  name="Upload CSV"
+  id="txtFileUpload"
+  (change)="uploadListener($event)"
+  accept=".csv"
+/>
+<!-- <table class="minimalistBlack" *ngIf="records.length > 0">
+  <thead>
+    <tr>
+      <th>Betriebsnummer</th>
+      <th>ID</th>
+      <th>Von</th>
+      <th>Bis</th>
+      <th>Dauer</th>
+      <th>Lohn</th>
+      <th>Mobile</th>
+      <th>Benutzer</th>
+      <th>Name</th>
+      <th>Kunde</th>
+      <th>Projekt</th>
+      <th>Beschreibung</th>
+      <th>Exportiert</th>
+      <th>Abrechenbar</th>
+      <th>Schlagworte</th>
+      <th>Stundenlohn</th>
+      <th>Festbetrag</th>
+      <th>Typ</th>
+      <th>Kundennummer</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let record of records; let i = index">
+      <td>
+        <span>1020200</span>
+      </td>
+      <td>
+        <span>{{ record.Datum }}</span>
+      </td>
+      <td>
+        <span>{{ record.Von }}</span>
+      </td>
+      <td>
+        <span>{{ record.Bis }}</span>
+      </td>
+      <td>
+        <span>{{ record.Dauer }}</span>
+      </td>
+      <td>
+        <span>{{ record.Lohn }}</span>
+      </td>
+      <td>
+        <span>{{ record.mobile }}</span>
+      </td>
+      <td>
+        <span>{{ record.Benutzer }}</span>
+      </td>
+      <td>
+        <span>{{ record.Name }}</span>
+      </td>
+      <td>
+        <span>{{ record.Kunde }}</span>
+      </td>
+      <td>
+        <span>{{ record.Projekt }}</span>
+      </td>
+      <td>
+        <span>{{ record.Beschreibung }}</span>
+      </td>
+      <td>
+        <span>{{ record.Exportiert }}</span>
+      </td>
+      <td>
+        <span>{{ record.Abrechenbar }}</span>
+      </td>
+      <td>
+        <span>{{ record.Schlagworte }}</span>
+      </td>
+      <td>
+        <span>{{ record.Stundenlohn }}</span>
+      </td>
+      <td>
+        <span>{{ record.Festbetrag }}</span>
+      </td>
+      <td>
+        <span>{{ record.Typ }}</span>
+      </td>
+      <td>
+        <span>{{ record.Kundennummer }}</span>
+      </td>
+    </tr>
+  </tbody>
+</table> -->
+<table class="minimalistBlack" *ngIf="records.length > 0">
+  <thead>
+    <tr>
+      <th>Betriebsnummer</th>
+      <th>Nachname</th>
+      <th>Vorname</th>
+      <th>Pers.-Nr</th>
+      <th>Datum</th>
+      <th>Beginn</th>
+      <th>Ende</th>
+      <th>Pause</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let record of records; let i = index">
+      <td>
+        <span>1020200</span>
+      </td>
+      <td>
+        <span>{{ record.Name }}</span>
+      </td>
+      <td>
+        <span>{{ record.Nachname }}</span>
+      </td>
+      <td>
+        <input placeholder="Pers.-Nr nicht vorhanden" />
+      </td>
+      <td>
+        <span>{{ record.Datum }}</span>
+      </td>
+      <td>
+        <span>{{ record.Von }}</span>
+      </td>
+      <td>
+        <span>{{ record.Bis }}</span>
+      </td>
+      <td>
+        <span>Pause nicht vorhanden</span>
+      </td>
+    </tr>
+  </tbody>
+</table>
+
+<br />
+<br />
+<br />
+<br />
+<hr />
+
+<ul>
+  <li>Betriebs-Nr:</li>
+  <li>Nachname:</li>
+  <li>Vorname:</li>
+  <li>Pers.-Nr:</li>
+  <li>Datum:</li>
+  <li>Beginn:</li>
+  <li>Ende: Pause:</li>
+</ul>
