@@ -40,63 +40,13 @@ export class CsvParserComponent implements OnInit {
     }
   }
 
-  private removeQuote(csvRecord: CSVRecord) {
-    // const csvWithoutQuotes: CSVRecord;
-    for (const [key, value] of Object.entries(csvRecord)) {
-      value.replace(/"/g, '');
-    }
-  }
-
   getDataRecordsArrayFromCSVFile(csvRecordsArray: any, headerLength: any) {
     let csvArr = [];
     for (let i = 1; i < csvRecordsArray.length; i++) {
-      let curruntRecord = (<string>csvRecordsArray[i]).split(',');
-      if (curruntRecord.length == headerLength) {
+      let currentRecord = (<string>csvRecordsArray[i]).split(',');
+      if (currentRecord.length == headerLength) {
         let csvRecord: CSVRecord = new CSVRecord();
-
-        // const date = curruntRecord[0].trim().replace(/'/g, '"');
-
-        const date = curruntRecord[0].substring(3, 11);
-
-        csvRecord.Datum = date;
-        csvRecord.Von = curruntRecord[1].trim().replace(/"/g, '');
-        csvRecord.Bis = curruntRecord[2].trim().replace(/"/g, '');
-
-        this.test(date, csvRecord.Von, csvRecord.Bis);
-
-        csvRecord.Dauer = curruntRecord[3].trim().replace(/"/g, '');
-        csvRecord.Lohn = curruntRecord[4].trim().replace(/"/g, '');
-        // csvRecord."Interner Lohn" = curruntRecord[5].trim();
-        csvRecord.Benutzer = curruntRecord[6].trim().replace(/"/g, '');
-        csvRecord.Name = curruntRecord[7]
-          .trim()
-          .split(/(\s+)/)
-          .filter((e) => e.trim().length > 0)[1]
-          .replace(/"/g, '');
-        console.log('Name: ', csvRecord.Name);
-
-        csvRecord.Nachname = curruntRecord[7]
-          .trim()
-          .split(/(\s+)/)
-          .filter((e) => e.trim().length > 0)[0]
-          .replace(/"/g, '');
-
-        csvRecord.Kunde = curruntRecord[8].trim().replace(/"/g, '');
-        csvRecord.Projekt = curruntRecord[9].trim().replace(/"/g, '');
-        csvRecord.Tätigkeit = curruntRecord[10].trim().replace(/"/g, '');
-        csvRecord.Beschreibung = curruntRecord[11].trim().replace(/"/g, '');
-        csvRecord.Exportiert = curruntRecord[12].trim().replace(/"/g, '');
-        csvRecord.Abrechenbar = curruntRecord[13].trim().replace(/"/g, '');
-        csvRecord.Schlagworte = curruntRecord[14].trim().replace(/"/g, '');
-        csvRecord.Stundenlohn = curruntRecord[15].trim().replace(/"/g, '');
-        csvRecord.Festbetrag = curruntRecord[16].trim().replace(/"/g, '');
-        csvRecord.Typ = curruntRecord[17].trim().replace(/"/g, '');
-        // csvRecord."label.category" = curruntRecord[18].trim();
-        csvRecord.Kundennummer = curruntRecord[19].trim().replace(/"/g, '');
-        // csvRecord."Umsatzsteuer-ID" = curruntRecord[20].trim();
-        // csvRecord.Bestellnummer = curruntRecord[21].trim();
-
-        this.removeQuote(csvRecord);
+        const cleanRecord = this.removeQuotes(csvRecord, currentRecord);
 
         csvArr.push(csvRecord);
       }
@@ -135,9 +85,48 @@ export class CsvParserComponent implements OnInit {
 
     return csvArr;
   }
-  isValidCSVFile(file: any) {
-    return file.name.endsWith('.csv');
+  private removeQuotes(
+    csvRecord: CSVRecord,
+    currentRecord: string[]
+  ): CSVRecord {
+    csvRecord.Datum = currentRecord[0].substring(3, 11);
+    csvRecord.Von = currentRecord[1].trim().replace(/"/g, '');
+    csvRecord.Bis = currentRecord[2].trim().replace(/"/g, '');
+    csvRecord.Dauer = currentRecord[3].trim().replace(/"/g, '');
+    csvRecord.Lohn = currentRecord[4].trim().replace(/"/g, '');
+    // csvRecord."Interner Lohn" = curruntRecord[5].trim();
+    csvRecord.Benutzer = currentRecord[6].trim().replace(/"/g, '');
+    csvRecord.Name = currentRecord[7]
+      .trim()
+      .split(/(\s+)/)
+      .filter((e) => e.trim().length > 0)[1]
+      .replace(/"/g, '');
+    console.log('Name: ', csvRecord.Name);
+
+    csvRecord.Nachname = currentRecord[7]
+      .trim()
+      .split(/(\s+)/)
+      .filter((e) => e.trim().length > 0)[0]
+      .replace(/"/g, '');
+
+    csvRecord.Kunde = currentRecord[8].trim().replace(/"/g, '');
+    csvRecord.Projekt = currentRecord[9].trim().replace(/"/g, '');
+    csvRecord.Tätigkeit = currentRecord[10].trim().replace(/"/g, '');
+    csvRecord.Beschreibung = currentRecord[11].trim().replace(/"/g, '');
+    csvRecord.Exportiert = currentRecord[12].trim().replace(/"/g, '');
+    csvRecord.Abrechenbar = currentRecord[13].trim().replace(/"/g, '');
+    csvRecord.Schlagworte = currentRecord[14].trim().replace(/"/g, '');
+    csvRecord.Stundenlohn = currentRecord[15].trim().replace(/"/g, '');
+    csvRecord.Festbetrag = currentRecord[16].trim().replace(/"/g, '');
+    csvRecord.Typ = currentRecord[17].trim().replace(/"/g, '');
+    // csvRecord."label.category" = curruntRecord[18].trim();
+    csvRecord.Kundennummer = currentRecord[19].trim().replace(/"/g, '');
+    // csvRecord."Umsatzsteuer-ID" = curruntRecord[20].trim();
+    // csvRecord.Bestellnummer = curruntRecord[21].trim();
+
+    return csvRecord;
   }
+
   getHeaderArray(csvRecordsArr: any) {
     let headers = (<string>csvRecordsArr[0]).split(',');
     let headerArray = [];
@@ -146,40 +135,13 @@ export class CsvParserComponent implements OnInit {
     }
     return headerArray;
   }
-  fileReset() {
+
+  private isValidCSVFile(file: any) {
+    return file.name.endsWith('.csv');
+  }
+
+  private fileReset() {
     this.csvReader.nativeElement.value = '';
     this.records = [];
   }
-
-  test(date: any, from: string, to: string) {
-    const hello = date.replace(/'/g, '"');
-    // console.log('Date', new Date(hello).toLocaleDateString('de-DE'));
-
-    if (this.arrWithAllDates.length === 0) {
-      this.arrWithAllDates.push(hello);
-    }
-
-    // const project = {
-    //   date: date,
-    //   from: from,
-    //   to: to,
-    // };
-
-    // this.arrWithAllDates.push(project);
-
-    // const test = this.arrWithAllDates.filter(
-    //   (date, i, self) =>
-    //     self.findIndex((d) => d.getTime() === date.getTime()) === i
-    // );
-
-    // console.log('Test', test);
-  }
-
-  removeCharAtIndex(index: number, str: string) {
-    var maxIndex = index == 0 ? 0 : index;
-    return str.substring(0, maxIndex) + str.substring(index, str.length);
-  }
 }
-
-// Gleichen Benutzer
-// Gleiches Datum und
