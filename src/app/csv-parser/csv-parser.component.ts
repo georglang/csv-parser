@@ -15,6 +15,7 @@ export class CsvParserComponent implements OnInit {
 
   public records: CSVRecord[] = [];
   @ViewChild('csvReader') csvReader: any;
+
   uploadListener($event: any): void {
     let text = [];
     let files = $event.srcElement.files;
@@ -40,56 +41,86 @@ export class CsvParserComponent implements OnInit {
     }
   }
 
-  getDataRecordsArrayFromCSVFile(csvRecordsArray: any, headerLength: any) {
-    let csvArr = [];
+  private getDataRecordsArrayFromCSVFile(
+    csvRecordsArray: any,
+    headerLength: any
+  ) {
+    let csvRecords = [];
     for (let i = 1; i < csvRecordsArray.length; i++) {
       let currentRecord = (<string>csvRecordsArray[i]).split(',');
       if (currentRecord.length == headerLength) {
         let csvRecord: CSVRecord = new CSVRecord();
         const cleanRecord = this.removeQuotes(csvRecord, currentRecord);
+        csvRecords.push(cleanRecord);
+      }
+      console.log('FFFFFIRST', csvRecords);
+    }
 
-        csvArr.push(csvRecord);
+    // sort by date into array
+    let recordsByDate = this.organizeByDate(csvRecords);
+    recordsByDate = this.convertToDate(recordsByDate);
+
+    recordsByDate.forEach((record) => {
+      this.sortByTime(record);
+    });
+
+    console.log('Test Arr: ', recordsByDate);
+
+    return csvRecords;
+  }
+
+  private sortByTime(csvRecords: CSVRecord[]): CSVRecord[] {
+    let from, to;
+    for (let record of csvRecords) {
+      from = record.Von;
+      to = record.Bis;
+
+      csvRecords.sort(function (x, y) {
+        return x.Von - y.Von;
+      });
+    }
+    return csvRecords;
+  }
+
+  private convertToDate(recordsByDate: CSVRecord[][]): CSVRecord[][] {
+    for (var i = 0; i < recordsByDate.length; i++) {
+      var record = recordsByDate[i];
+      for (var j = 0; j < record.length; j++) {
+        record[j].Datum = new Date(record[j].Datum);
       }
     }
-    console.log('ARRRRrrrrr', csvArr);
+    return recordsByDate;
+  }
 
-    const testArr: CSVRecord[][] = new Array();
+  private organizeByDate(csvArr: any[]): CSVRecord[][] {
     //  0  1  2
     // testArr.push([1, 2, 3]);   // 0
     // testArr.push([2, 3, 4]);   // 1
     // testArr.push([5, 6, 7]);   // 2
-
-    // sort regarding date into array
+    let records: CSVRecord[][] = [];
     let remember = 0;
     for (let i = 0; i < csvArr.length; i++) {
       if (i === 0) {
-        testArr.push([csvArr[0]]);
+        records.push([csvArr[0]]);
       } else {
         if (csvArr[i].Datum === csvArr[i - 1].Datum) {
-          testArr[remember].push(csvArr[i]);
+          records[remember].push(csvArr[i]);
         } else {
           remember += 1;
-          testArr.push([csvArr[i]]);
+          records.push([csvArr[i]]);
         }
       }
     }
-
-    // sort time
-
-    console.log('Test Arr: ', testArr);
-
-    // for (var property in obj1) {
-    //   if (obj1[property] == obj2[property])
-    //     obj_common[property] = obj1[property];
-    // }
-
-    return csvArr;
+    return records;
   }
+
   private removeQuotes(
     csvRecord: CSVRecord,
     currentRecord: string[]
   ): CSVRecord {
-    csvRecord.Datum = currentRecord[0].substring(3, 11);
+    const centuryPrefix = '20';
+
+    csvRecord.Datum = centuryPrefix.concat(currentRecord[0].substring(3, 11));
     csvRecord.Von = currentRecord[1].trim().replace(/"/g, '');
     csvRecord.Bis = currentRecord[2].trim().replace(/"/g, '');
     csvRecord.Dauer = currentRecord[3].trim().replace(/"/g, '');
@@ -127,7 +158,7 @@ export class CsvParserComponent implements OnInit {
     return csvRecord;
   }
 
-  getHeaderArray(csvRecordsArr: any) {
+  private getHeaderArray(csvRecordsArr: any) {
     let headers = (<string>csvRecordsArr[0]).split(',');
     let headerArray = [];
     for (let j = 0; j < headers.length; j++) {
