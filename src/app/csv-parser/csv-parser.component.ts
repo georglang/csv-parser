@@ -53,7 +53,6 @@ export class CsvParserComponent implements OnInit {
         const cleanRecord = this.removeQuotes(csvRecord, currentRecord);
         csvRecords.push(cleanRecord);
       }
-      console.log('FFFFFIRST', csvRecords);
     }
 
     // sort by date into array
@@ -64,9 +63,21 @@ export class CsvParserComponent implements OnInit {
       this.sortByTime(record);
     });
 
-    console.log('Test Arr: ', recordsByDate);
+    recordsByDate = this.sortByName(recordsByDate);
+    return this.twoDimentionalIntoSingleArray(recordsByDate);
+  }
 
-    return csvRecords;
+  private twoDimentionalIntoSingleArray(
+    csvRecords: CSVRecord[][]
+  ): CSVRecord[] {
+    const arr = [];
+    for (var i = 0; i < csvRecords.length; i++) {
+      var cube = csvRecords[i];
+      for (var j = 0; j < cube.length; j++) {
+        arr.push(cube[j]);
+      }
+    }
+    return arr;
   }
 
   private sortByTime(csvRecords: CSVRecord[]): CSVRecord[] {
@@ -82,6 +93,26 @@ export class CsvParserComponent implements OnInit {
     return csvRecords;
   }
 
+  private sortByName(csvRecord: CSVRecord[][]) {
+    for (let records of csvRecord) {
+      records.sort((a, b) => a.Benutzer.localeCompare(b.Benutzer));
+
+      for (let i = 0; i < records.length; i++) {
+        if (records[i + 1]) {
+          if (records[i].Benutzer === records[i + 1].Benutzer) {
+            const from = new Date(`01/01/2022 ${records[i].Von}`);
+            const to = new Date(`01/01/2022 ${records[i + 1].Bis}`);
+
+            const difference = from.getTime() - to.getTime();
+            const result = new Date(difference).toISOString().slice(11, 19); // HH:MM:SS
+            records[i + 1].Pause = result;
+          }
+        }
+      }
+    }
+    return csvRecord;
+  }
+
   private convertToDate(recordsByDate: CSVRecord[][]): CSVRecord[][] {
     for (var i = 0; i < recordsByDate.length; i++) {
       var record = recordsByDate[i];
@@ -93,10 +124,6 @@ export class CsvParserComponent implements OnInit {
   }
 
   private organizeByDate(csvArr: any[]): CSVRecord[][] {
-    //  0  1  2
-    // testArr.push([1, 2, 3]);   // 0
-    // testArr.push([2, 3, 4]);   // 1
-    // testArr.push([5, 6, 7]);   // 2
     let records: CSVRecord[][] = [];
     let remember = 0;
     for (let i = 0; i < csvArr.length; i++) {
@@ -120,40 +147,42 @@ export class CsvParserComponent implements OnInit {
   ): CSVRecord {
     const centuryPrefix = '20';
 
-    csvRecord.Datum = centuryPrefix.concat(currentRecord[0].substring(3, 11));
-    csvRecord.Von = currentRecord[1].trim().replace(/"/g, '');
-    csvRecord.Bis = currentRecord[2].trim().replace(/"/g, '');
-    csvRecord.Dauer = currentRecord[3].trim().replace(/"/g, '');
-    csvRecord.Lohn = currentRecord[4].trim().replace(/"/g, '');
+    csvRecord.Datum = centuryPrefix.concat(currentRecord[0]?.substring(3, 11));
+    csvRecord.Von = currentRecord[1]?.trim().replace(/"/g, '');
+    csvRecord.Bis = currentRecord[2]?.trim().replace(/"/g, '');
+    csvRecord.Dauer = currentRecord[3]?.trim().replace(/"/g, '');
+    csvRecord.Lohn = currentRecord[4]?.trim().replace(/"/g, '');
     // csvRecord."Interner Lohn" = curruntRecord[5].trim();
-    csvRecord.Benutzer = currentRecord[6].trim().replace(/"/g, '');
+    csvRecord.Benutzer = currentRecord[6]?.trim().replace(/"/g, '');
     csvRecord.Name = currentRecord[7]
-      .trim()
+      ?.trim()
       .split(/(\s+)/)
-      .filter((e) => e.trim().length > 0)[1]
-      .replace(/"/g, '');
-    console.log('Name: ', csvRecord.Name);
+      .filter((e) => {
+        e?.trim().length > 0;
+      })[1]
+      ?.replace(/"/g, '');
 
     csvRecord.Nachname = currentRecord[7]
       .trim()
       .split(/(\s+)/)
-      .filter((e) => e.trim().length > 0)[0]
-      .replace(/"/g, '');
+      .filter((e) => e.trim()?.length > 0)[0]
+      ?.replace(/"/g, '');
 
-    csvRecord.Kunde = currentRecord[8].trim().replace(/"/g, '');
-    csvRecord.Projekt = currentRecord[9].trim().replace(/"/g, '');
-    csvRecord.Tätigkeit = currentRecord[10].trim().replace(/"/g, '');
-    csvRecord.Beschreibung = currentRecord[11].trim().replace(/"/g, '');
-    csvRecord.Exportiert = currentRecord[12].trim().replace(/"/g, '');
-    csvRecord.Abrechenbar = currentRecord[13].trim().replace(/"/g, '');
-    csvRecord.Schlagworte = currentRecord[14].trim().replace(/"/g, '');
-    csvRecord.Stundenlohn = currentRecord[15].trim().replace(/"/g, '');
-    csvRecord.Festbetrag = currentRecord[16].trim().replace(/"/g, '');
-    csvRecord.Typ = currentRecord[17].trim().replace(/"/g, '');
+    csvRecord.Kunde = currentRecord[8]?.trim().replace(/"/g, '');
+    csvRecord.Projekt = currentRecord[9]?.trim().replace(/"/g, '');
+    csvRecord.Tätigkeit = currentRecord[10]?.trim().replace(/"/g, '');
+    csvRecord.Beschreibung = currentRecord[11]?.trim().replace(/"/g, '');
+    csvRecord.Exportiert = currentRecord[12]?.trim().replace(/"/g, '');
+    csvRecord.Abrechenbar = currentRecord[13]?.trim().replace(/"/g, '');
+    csvRecord.Schlagworte = currentRecord[14]?.trim().replace(/"/g, '');
+    csvRecord.Stundenlohn = currentRecord[15]?.trim().replace(/"/g, '');
+    csvRecord.Festbetrag = currentRecord[16]?.trim().replace(/"/g, '');
+    csvRecord.Typ = currentRecord[17]?.trim().replace(/"/g, '');
     // csvRecord."label.category" = curruntRecord[18].trim();
-    csvRecord.Kundennummer = currentRecord[19].trim().replace(/"/g, '');
+    csvRecord.Kundennummer = currentRecord[19]?.trim().replace(/"/g, '');
     // csvRecord."Umsatzsteuer-ID" = curruntRecord[20].trim();
     // csvRecord.Bestellnummer = curruntRecord[21].trim();
+    csvRecord.Pause = '00:00';
 
     return csvRecord;
   }
