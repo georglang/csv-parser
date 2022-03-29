@@ -120,7 +120,7 @@
         <input placeholder="Pers.-Nr nicht vorhanden" />
       </td>
       <td>
-        <span>{{ record.Datum }}</span>
+        <span>{{ record.Datum | date: "dd.MM.yyyy" }}</span>
       </td>
       <td>
         <span>{{ record.Von }}</span>
@@ -141,12 +141,6 @@
 <br />
 <hr />
 
-<ul>
-  <li>Betriebs-Nr:</li>
-  <li>Nachname:</li>
-  <li>Vorname:</li>
-  <li>Pers.-Nr:</li>
-  <li>Datum:</li>
-  <li>Beginn:</li>
-  <li>Ende: Pause:</li>
-</ul>
+<h2>Exportieren</h2>
+
+<button mat-raise-button (click)="exportAsCsv()">Export</button>
