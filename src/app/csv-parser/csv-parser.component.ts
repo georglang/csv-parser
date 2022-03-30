@@ -104,7 +104,7 @@ export class CsvParserComponent {
       const currentRecord = (<string>csvRecordsArray[i]).split(',');
       if (currentRecord.length == headerLength) {
         const recordWithoutQuotes = this.removeQuotes(currentRecord);
-        csvRecords.push(this.setRecordIdAndCompanyNumber(recordWithoutQuotes));
+        csvRecords.push(this.setValues(recordWithoutQuotes));
       }
     }
 
@@ -120,9 +120,12 @@ export class CsvParserComponent {
     );
   }
 
-  private setRecordIdAndCompanyNumber(csvRecord: CSVRecord): CSVRecord {
+  private setValues(csvRecord: CSVRecord): CSVRecord {
     csvRecord.id = csvRecord.Benutzer.toLowerCase().replace(/ /g, '-');
     csvRecord.Betriebsnummer = this.companyNumber;
+    const user = csvRecord.Benutzer.split(/(\s+)/);
+    csvRecord.Name = user[0];
+    csvRecord.Nachname = user[2];
     return csvRecord;
   }
 

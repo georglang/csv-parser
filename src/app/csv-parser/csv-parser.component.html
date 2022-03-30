@@ -1,80 +1,86 @@
 <div class="action-container">
-  <div class="choose-file-wrapper">
-    <h2>Bitte Csv-Datei auswählen</h2>
-    <div class="file-input">
-      <input
-        type="file"
-        #csvReader
-        name="file"
-        id="file"
-        (change)="uploadListener($event)"
-        class="file"
-      />
-      <label for="file">
-        <b>Datei auswählen</b>
-        <p class="file-name"></p>
-      </label>
-    </div>
-  </div>
-  <div class="save-file-wrapper">
-    <h2>Csv-Datei speichern</h2>
-    <button mat-raised-button (click)="exportAsCsv()">Export</button>
-  </div>
+  <mat-card class="import-export-wrapper">
+    <mat-card-title>CSV Importieren & Speichern</mat-card-title>
+    <mat-card-actions>
+      <div class="file-input">
+        <input
+          type="file"
+          #csvReader
+          name="file"
+          id="file"
+          (change)="uploadListener($event)"
+          class="file"
+        />
+        <label for="file">
+          Importieren
+          <p class="file-name"></p>
+        </label>
+      </div>
+      <button
+        mat-raised-button
+        (click)="exportAsCsv()"
+        disabled="{{ records.length === 0 }}"
+      >
+        Speichern
+      </button>
+    </mat-card-actions>
+  </mat-card>
 </div>
 
 <div class="table-wrapper">
-  <h2>Inhalt der Csv-Datei</h2>
-  <table id="table" mat-table [dataSource]="dataSource">
-    <ng-container matColumnDef="Betriebsnummer">
-      <th mat-header-cell *matHeaderCellDef>Betriebsnummer</th>
-      <td mat-cell *matCellDef="let element">{{ element.Betriebsnummer }}</td>
-    </ng-container>
-    <ng-container matColumnDef="Nachname">
-      <th mat-header-cell *matHeaderCellDef>Nachname</th>
-      <td mat-cell *matCellDef="let element">{{ element.Nachname }}</td>
-    </ng-container>
-    <ng-container matColumnDef="Vorname">
-      <th mat-header-cell *matHeaderCellDef>Vorname</th>
-      <td mat-cell *matCellDef="let element">{{ element.Name }}</td>
-    </ng-container>
-    <ng-container matColumnDef="PersonalNr">
-      <th mat-header-cell *matHeaderCellDef>Personal Nr.</th>
-      <td mat-cell *matCellDef="let element">
-        <mat-form-field>
-          <input
-            matInput
-            placeholder="Pers.-Nr eingeben"
-            [(ngModel)]="element.PersonalNr"
-            type="text"
-            (keyup)="onKeypressEvent($event, element.id)"
-          />
-        </mat-form-field>
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="Datum">
-      <th mat-header-cell *matHeaderCellDef>Datum</th>
-      <td mat-cell *matCellDef="let element">
-        {{ element.Datum | date: "dd.MM.yyyy" }}
-      </td>
-    </ng-container>
-    <ng-container matColumnDef="Beginn">
-      <th mat-header-cell *matHeaderCellDef>Beginn</th>
-      <td mat-cell *matCellDef="let element">{{ element.Von }}</td>
-    </ng-container>
-    <ng-container matColumnDef="Ende">
-      <th mat-header-cell *matHeaderCellDef>Ende</th>
-      <td mat-cell *matCellDef="let element">{{ element.Bis }}</td>
-    </ng-container>
-    <ng-container matColumnDef="Pause">
-      <th mat-header-cell *matHeaderCellDef>Pause</th>
-      <td mat-cell *matCellDef="let element">{{ element.Pause }}</td>
-    </ng-container>
-
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
-
-  <div *ngIf="records.length === 0">
-    <p class="no-csv-file-loaded">Derzeit ist keine .csv Datei geladen</p>
+  <div *ngIf="records.length === 0; else table">
+    <h2 class="no-csv-file-loaded">Derzeit ist keine .csv Datei geladen</h2>
   </div>
+
+  <ng-template #table>
+    <table id="table" mat-table [dataSource]="dataSource">
+      <ng-container matColumnDef="Betriebsnummer">
+        <th mat-header-cell *matHeaderCellDef>Betriebsnummer</th>
+        <td mat-cell *matCellDef="let element">{{ element.Betriebsnummer }}</td>
+      </ng-container>
+      <ng-container matColumnDef="Nachname">
+        <th mat-header-cell *matHeaderCellDef>Nachname</th>
+        <td mat-cell *matCellDef="let element">{{ element.Nachname }}</td>
+      </ng-container>
+      <ng-container matColumnDef="Vorname">
+        <th mat-header-cell *matHeaderCellDef>Vorname</th>
+        <td mat-cell *matCellDef="let element">{{ element.Name }}</td>
+      </ng-container>
+      <ng-container matColumnDef="PersonalNr">
+        <th mat-header-cell *matHeaderCellDef>Personal Nr.</th>
+        <td mat-cell *matCellDef="let element">
+          <mat-form-field>
+            <input
+              matInput
+              placeholder="Pers.-Nr eingeben"
+              [(ngModel)]="element.PersonalNr"
+              type="text"
+              (keyup)="onKeypressEvent($event, element.id)"
+            />
+          </mat-form-field>
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="Datum">
+        <th mat-header-cell *matHeaderCellDef>Datum</th>
+        <td mat-cell *matCellDef="let element">
+          {{ element.Datum | date: "dd.MM.yyyy" }}
+        </td>
+      </ng-container>
+      <ng-container matColumnDef="Beginn">
+        <th mat-header-cell *matHeaderCellDef>Beginn</th>
+        <td mat-cell *matCellDef="let element">{{ element.Von }}</td>
+      </ng-container>
+      <ng-container matColumnDef="Ende">
+        <th mat-header-cell *matHeaderCellDef>Ende</th>
+        <td mat-cell *matCellDef="let element">{{ element.Bis }}</td>
+      </ng-container>
+      <ng-container matColumnDef="Pause">
+        <th mat-header-cell *matHeaderCellDef>Pause</th>
+        <td mat-cell *matCellDef="let element">{{ element.Pause }}</td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
+    </table>
+  </ng-template>
 </div>
