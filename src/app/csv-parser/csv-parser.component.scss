@@ -1,14 +1,24 @@
-.container {
+.action-container {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
 }
 
 .table-wrapper {
   margin-top: 60px;
+  #table {
+    width: 100%;
+  }
+}
+
+.mat-form-field-appearance-legacy .mat-form-field-wrapper {
+  margin-top: 10px !important;
+}
+
+.choose-file-wrapper {
+  margin-right: 100px;
 }
 
 .save-file-wrapper {
-  margin-top: 20px;
 }
 
 table.minimalistBlack {
@@ -103,4 +113,10 @@ input:focus + label {
 input:focus + label {
   outline: 1px solid #000;
   outline: -webkit-focus-ring-color auto 2px;
+}
+
+.no-csv-file-loaded {
+  color: #e65151;
+  font-size: 120%;
+  font-weight: bold;
 }

@@ -10,9 +10,20 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 })
 export class CsvParserComponent {
   @ViewChild('csvReader') csvReader: any;
-  readonly companyNumber = '1020200';
+  companyNumber = '1020200';
   private readonly snackbarDuration = 4000000;
   records: CSVRecord[] = [];
+  dataSource: CSVRecord[] = [];
+  displayedColumns: string[] = [
+    'Betriebsnummer',
+    'Nachname',
+    'Vorname',
+    'PersonalNr',
+    'Datum',
+    'Beginn',
+    'Ende',
+    'Pause',
+  ];
 
   constructor(
     private matSnackbar: MatSnackBar,
@@ -33,6 +44,7 @@ export class CsvParserComponent {
           csvEntiresArray,
           headersRow.length
         );
+        this.dataSource = this.records;
       };
       reader.onerror = () => {
         this.openSnackbarErrorMessage(
@@ -92,7 +104,7 @@ export class CsvParserComponent {
       const currentRecord = (<string>csvRecordsArray[i]).split(',');
       if (currentRecord.length == headerLength) {
         const recordWithoutQuotes = this.removeQuotes(currentRecord);
-        csvRecords.push(this.setRecordId(recordWithoutQuotes));
+        csvRecords.push(this.setRecordIdAndCompanyNumber(recordWithoutQuotes));
       }
     }
 
@@ -108,8 +120,9 @@ export class CsvParserComponent {
     );
   }
 
-  private setRecordId(csvRecord: CSVRecord): CSVRecord {
+  private setRecordIdAndCompanyNumber(csvRecord: CSVRecord): CSVRecord {
     csvRecord.id = csvRecord.Benutzer.toLowerCase().replace(/ /g, '-');
+    csvRecord.Betriebsnummer = this.companyNumber;
     return csvRecord;
   }
 
@@ -263,3 +276,7 @@ export class CsvParserComponent {
     this.records = [];
   }
 }
+
+// ToDo
+// "Text noch keine CSV Daten geladen"
+// Evtl. Anzeige in schönerer Tabel

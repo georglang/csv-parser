@@ -26,6 +26,7 @@ export class CSVRecord {
   public Bestellnummer: any;
   // not a csv field
   public Nachname: any;
+  public Betriebsnummer: any;
   public PersonalNr: any;
   public Pause?: string;
 }
