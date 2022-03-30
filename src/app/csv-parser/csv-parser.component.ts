@@ -279,7 +279,3 @@ export class CsvParserComponent {
     this.records = [];
   }
 }
-
-// ToDo
-// "Text noch keine CSV Daten geladen"
-// Evtl. Anzeige in schönerer Tabel
