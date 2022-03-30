@@ -1,5 +1,6 @@
 export class CSVRecord {
   // csv fields
+  public id: any;
   public Datum: any;
   public Von: any;
   public Bis: any;
@@ -25,5 +26,17 @@ export class CSVRecord {
   public Bestellnummer: any;
   // not a csv field
   public Nachname: any;
+  public PersonalNr: any;
   public Pause?: string;
+}
+
+export interface ExportCSVRecord {
+  Betriebsnummer: string;
+  Nachname: string;
+  Vorname: string;
+  PersonalNr: string;
+  Datum: string;
+  Beginn: string;
+  Ende: string;
+  Pause: string;
 }
