@@ -27,7 +27,11 @@
 
 .content {
   display: flex;
-  margin: 82px auto 32px;
-  padding: 0 16px;
+  margin: 81px auto 32px;
+  padding: 10px 32px;
   flex-direction: column;
+}
+
+.import-export-wrapper {
+  width: 40%;
 }
