@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { AngularCsv } from 'angular-csv-ext/dist/Angular-csv';
-import { ExportedCSV } from '../csv-parser/csv-record';
+import { ExportCSVRecord } from '../csv-parser/csv-record';
 
 @Injectable({
   providedIn: 'root',
@@ -31,7 +31,7 @@ export class ExportService {
     nullToEmptyString: true,
   };
 
-  exportToCsv(csvDataSets: ExportedCSV[]) {
+  exportToCsv(csvDataSets: ExportCSVRecord[]) {
     new AngularCsv(csvDataSets, 'Exported Data', this.options);
   }
 }
