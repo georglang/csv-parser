@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { CSVRecord } from './csv-record';
+import { CSVRecord, ExportCSVRecord } from './csv-record';
+import { ExportService } from '../services/export.service';
 
 @Component({
   selector: 'app-csv-parser',
@@ -7,7 +8,12 @@ import { CSVRecord } from './csv-record';
   styleUrls: ['./csv-parser.component.scss'],
 })
 export class CsvParserComponent implements OnInit {
-  constructor() {}
+  private csvDataSets: CSVRecord[] = [];
+  srcResult: any;
+  companyNumber: string = '1020200';
+  selectedFiles: any;
+
+  constructor(private exportService: ExportService) {}
 
   ngOnInit() {}
 
@@ -33,7 +39,7 @@ export class CsvParserComponent implements OnInit {
         );
       };
       reader.onerror = function () {
-        console.log('error is occured while reading file!');
+        console.log('Error is occured while reading file!');
       };
     } else {
       alert('Please import valid .csv file.');
@@ -51,6 +57,7 @@ export class CsvParserComponent implements OnInit {
       if (currentRecord.length == headerLength) {
         let csvRecord: CSVRecord = new CSVRecord();
         const cleanRecord = this.removeQuotes(csvRecord, currentRecord);
+        csvRecord.id = csvRecord.Benutzer.toLowerCase().replace(/ /g, '-');
         csvRecords.push(cleanRecord);
       }
     }
@@ -64,7 +71,9 @@ export class CsvParserComponent implements OnInit {
     });
 
     recordsByDate = this.sortByName(recordsByDate);
-    return this.twoDimentionalIntoSingleArray(recordsByDate);
+    const singleArray = this.twoDimentionalIntoSingleArray(recordsByDate);
+    this.csvDataSets = singleArray;
+    return singleArray;
   }
 
   private twoDimentionalIntoSingleArray(
@@ -203,5 +212,52 @@ export class CsvParserComponent implements OnInit {
   private fileReset() {
     this.csvReader.nativeElement.value = '';
     this.records = [];
+  }
+
+  exportAsCsv() {
+    const csvExport: ExportCSVRecord[] = [];
+    if (this.csvDataSets.length > 0) {
+      this.csvDataSets.map((csvDataSet: CSVRecord) => {
+        csvExport.push({
+          Betriebsnummer: this.companyNumber,
+          Nachname: csvDataSet.Nachname,
+          Vorname: csvDataSet.Name,
+          PersonalNr: csvDataSet.PersonalNr,
+          Datum: this.formatDate(csvDataSet.Datum),
+          Beginn: csvDataSet.Von,
+          Ende: csvDataSet.Bis,
+          Pause: csvDataSet.Pause!,
+        });
+      });
+    }
+    if (csvExport.length > 0) {
+      this.exportService.exportToCsv(csvExport);
+    }
+  }
+
+  private formatDate(date: Date) {
+    var d = new Date(date),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) month = '0' + month;
+    if (day.length < 2) day = '0' + day;
+
+    return [day, month, year].join('.');
+  }
+
+  selectFile($event: any) {
+    if ($event) {
+      this.uploadListener($event);
+    }
+  }
+
+  onKeypressEvent(event: any, recordId: string) {
+    this.csvDataSets.forEach((csvRecord: CSVRecord) => {
+      if (csvRecord.id === recordId) {
+        csvRecord.PersonalNr = event.target.value;
+      }
+    });
   }
 }
