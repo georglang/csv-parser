@@ -1,10 +1,26 @@
 .action-container {
   display: flex;
   flex-direction: row;
+  width: 50%;
+
+  .import-export-wrapper {
+    width: 500px;
+    box-shadow: 0px 2px 1px -1px rgb(0 0 0 / 20%),
+      0px 1px 1px 0px rgb(0 0 0 / 14%), 0px 1px 3px 0px rgb(0 0 0 / 12%);
+  }
+
+  mat-card-actions {
+    margin-top: 20px;
+    margin-bottom: 2px;
+    margin-left: -1px;
+    display: flex;
+    flex-direction: row;
+  }
 }
 
 .table-wrapper {
   margin-top: 60px;
+  margin-bottom: 100px;
   #table {
     width: 100%;
   }
@@ -119,4 +135,5 @@ input:focus + label {
   color: #e65151;
   font-size: 120%;
   font-weight: bold;
+  width: 500px;
 }
