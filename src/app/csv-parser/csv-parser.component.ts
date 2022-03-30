@@ -1,6 +1,7 @@
 import { Component, ViewChild } from '@angular/core';
 import { CSVRecord, ExportedCSV } from './csv-record';
 import { ExportService } from '../services/export.service';
+import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 
 @Component({
   selector: 'app-csv-parser',
@@ -10,9 +11,13 @@ import { ExportService } from '../services/export.service';
 export class CsvParserComponent {
   @ViewChild('csvReader') csvReader: any;
   readonly companyNumber = '1020200';
+  private readonly snackbarDuration = 4000000;
   records: CSVRecord[] = [];
 
-  constructor(private exportService: ExportService) {}
+  constructor(
+    private matSnackbar: MatSnackBar,
+    private exportService: ExportService
+  ) {}
 
   uploadListener($event: any): void {
     let files = $event.srcElement.files;
@@ -30,10 +35,12 @@ export class CsvParserComponent {
         );
       };
       reader.onerror = () => {
-        console.log('Error is occured while reading file!');
+        this.openSnackbarErrorMessage(
+          'Fehler ist während des Ladens der CSV-Datei aufgetreten'
+        );
       };
     } else {
-      alert('Please import valid .csv file.');
+      this.openSnackbarErrorMessage('Bitte wählen Sie eine .csv Datei aus');
       this.fileReset();
     }
   }
@@ -65,6 +72,15 @@ export class CsvParserComponent {
     if (csvExport.length > 0) {
       this.exportService.exportToCsv(csvExport);
     }
+  }
+
+  private openSnackbarErrorMessage(message: string): void {
+    const config = new MatSnackBarConfig();
+    config.duration = this.snackbarDuration;
+    config.panelClass = ['snackbar-error-message'];
+    config.horizontalPosition = 'center';
+
+    this.matSnackbar.open(message, '', config);
   }
 
   private getDataRecordsArrayFromCSVFile(
