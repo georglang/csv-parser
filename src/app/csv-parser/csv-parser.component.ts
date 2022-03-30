@@ -1,5 +1,5 @@
-import { Component, OnInit, ViewChild } from '@angular/core';
-import { CSVRecord, ExportCSVRecord } from './csv-record';
+import { Component, ViewChild } from '@angular/core';
+import { CSVRecord, ExportedCSV } from './csv-record';
 import { ExportService } from '../services/export.service';
 
 @Component({
@@ -7,38 +7,29 @@ import { ExportService } from '../services/export.service';
   templateUrl: './csv-parser.component.html',
   styleUrls: ['./csv-parser.component.scss'],
 })
-export class CsvParserComponent implements OnInit {
-  private csvDataSets: CSVRecord[] = [];
-  srcResult: any;
-  companyNumber: string = '1020200';
-  selectedFiles: any;
+export class CsvParserComponent {
+  @ViewChild('csvReader') csvReader: any;
+  readonly companyNumber = '1020200';
+  records: CSVRecord[] = [];
 
   constructor(private exportService: ExportService) {}
 
-  ngOnInit() {}
-
-  public arrWithAllDates: any[] = [];
-
-  public records: CSVRecord[] = [];
-  @ViewChild('csvReader') csvReader: any;
-
   uploadListener($event: any): void {
-    let text = [];
     let files = $event.srcElement.files;
     if (this.isValidCSVFile(files[0])) {
-      let input = $event.target;
-      let reader = new FileReader();
+      const input = $event.target;
+      const reader = new FileReader();
       reader.readAsText(input.files[0]);
       reader.onload = () => {
-        let csvData = reader.result;
-        let csvRecordsArray = (<string>csvData).split(/\r\n|\n/);
-        let headersRow = this.getHeaderArray(csvRecordsArray);
+        const csvData = reader.result;
+        const csvEntiresArray: string[] = (<string>csvData).split(/\r\n|\n/);
+        const headersRow = this.getHeaderArray(csvEntiresArray);
         this.records = this.getDataRecordsArrayFromCSVFile(
-          csvRecordsArray,
+          csvEntiresArray,
           headersRow.length
         );
       };
-      reader.onerror = function () {
+      reader.onerror = () => {
         console.log('Error is occured while reading file!');
       };
     } else {
@@ -47,46 +38,106 @@ export class CsvParserComponent implements OnInit {
     }
   }
 
+  onKeypressEvent(event: any, recordId: string): void {
+    this.records.forEach((csvRecord: CSVRecord) => {
+      if (csvRecord.id === recordId) {
+        csvRecord.PersonalNr = event.target.value;
+      }
+    });
+  }
+
+  exportAsCsv(): void {
+    const csvExport: ExportedCSV[] = [];
+    if (this.records.length > 0) {
+      this.records.map((csvDataSet: CSVRecord) => {
+        csvExport.push({
+          Betriebsnummer: this.companyNumber,
+          Nachname: csvDataSet.Nachname,
+          Vorname: csvDataSet.Name,
+          PersonalNr: csvDataSet.PersonalNr,
+          Datum: this.formatDateForExport(csvDataSet.Datum),
+          Beginn: csvDataSet.Von,
+          Ende: csvDataSet.Bis,
+          Pause: csvDataSet.Pause!,
+        });
+      });
+    }
+    if (csvExport.length > 0) {
+      this.exportService.exportToCsv(csvExport);
+    }
+  }
+
   private getDataRecordsArrayFromCSVFile(
-    csvRecordsArray: any,
-    headerLength: any
-  ) {
-    let csvRecords = [];
+    csvRecordsArray: string[],
+    headerLength: number
+  ): CSVRecord[] {
+    const csvRecords: CSVRecord[] = [];
     for (let i = 1; i < csvRecordsArray.length; i++) {
-      let currentRecord = (<string>csvRecordsArray[i]).split(',');
+      const currentRecord = (<string>csvRecordsArray[i]).split(',');
       if (currentRecord.length == headerLength) {
-        let csvRecord: CSVRecord = new CSVRecord();
-        const cleanRecord = this.removeQuotes(csvRecord, currentRecord);
-        csvRecord.id = csvRecord.Benutzer.toLowerCase().replace(/ /g, '-');
-        csvRecords.push(cleanRecord);
+        const recordWithoutQuotes = this.removeQuotes(currentRecord);
+        csvRecords.push(this.setRecordId(recordWithoutQuotes));
       }
     }
 
-    // sort by date into array
-    let recordsByDate = this.organizeByDate(csvRecords);
-    recordsByDate = this.convertToDate(recordsByDate);
-
-    recordsByDate.forEach((record) => {
+    const recordsSortedByDateAndTime = this.convertToDate(
+      this.sortByDate(csvRecords)
+    );
+    recordsSortedByDateAndTime.forEach((record) => {
       this.sortByTime(record);
     });
 
-    recordsByDate = this.sortByName(recordsByDate);
-    const singleArray = this.twoDimentionalIntoSingleArray(recordsByDate);
-    this.csvDataSets = singleArray;
-    return singleArray;
+    return this.convertTwoDimensionalIntoOneDimensionalArray(
+      this.sortByName(recordsSortedByDateAndTime)
+    );
   }
 
-  private twoDimentionalIntoSingleArray(
-    csvRecords: CSVRecord[][]
-  ): CSVRecord[] {
-    const arr = [];
-    for (var i = 0; i < csvRecords.length; i++) {
-      var cube = csvRecords[i];
-      for (var j = 0; j < cube.length; j++) {
-        arr.push(cube[j]);
+  private setRecordId(csvRecord: CSVRecord): CSVRecord {
+    csvRecord.id = csvRecord.Benutzer.toLowerCase().replace(/ /g, '-');
+    return csvRecord;
+  }
+
+  private convertToDate(recordsByDate: CSVRecord[][]): CSVRecord[][] {
+    for (let i = 0; i < recordsByDate.length; i++) {
+      const record = recordsByDate[i];
+      for (let j = 0; j < record.length; j++) {
+        record[j].Datum = new Date(record[j].Datum);
       }
     }
-    return arr;
+    return recordsByDate;
+  }
+
+  private formatDateForExport(date: Date): string {
+    let d = new Date(date),
+      month = '' + (d.getMonth() + 1),
+      day = '' + d.getDate(),
+      year = d.getFullYear();
+
+    if (month.length < 2) {
+      month = '0' + month;
+    }
+    if (day.length < 2) {
+      day = '0' + day;
+    }
+    return [day, month, year].join('.');
+  }
+
+  private sortByDate(csvArr: CSVRecord[]): CSVRecord[][] {
+    const records: CSVRecord[][] = [];
+    let remember = 0;
+    for (let i = 0; i < csvArr.length; i++) {
+      if (i === 0) {
+        records.push([csvArr[0]]);
+      } else {
+        if (csvArr[i].Datum === csvArr[i - 1].Datum) {
+          records[remember].push(csvArr[i]);
+        } else {
+          remember += 1;
+          records.push([csvArr[i]]);
+        }
+      }
+    }
+    return records;
   }
 
   private sortByTime(csvRecords: CSVRecord[]): CSVRecord[] {
@@ -102,7 +153,7 @@ export class CsvParserComponent implements OnInit {
     return csvRecords;
   }
 
-  private sortByName(csvRecord: CSVRecord[][]) {
+  private sortByName(csvRecord: CSVRecord[][]): CSVRecord[][] {
     for (let records of csvRecord) {
       records.sort((a, b) => a.Benutzer.localeCompare(b.Benutzer));
 
@@ -122,40 +173,9 @@ export class CsvParserComponent implements OnInit {
     return csvRecord;
   }
 
-  private convertToDate(recordsByDate: CSVRecord[][]): CSVRecord[][] {
-    for (var i = 0; i < recordsByDate.length; i++) {
-      var record = recordsByDate[i];
-      for (var j = 0; j < record.length; j++) {
-        record[j].Datum = new Date(record[j].Datum);
-      }
-    }
-    return recordsByDate;
-  }
-
-  private organizeByDate(csvArr: any[]): CSVRecord[][] {
-    let records: CSVRecord[][] = [];
-    let remember = 0;
-    for (let i = 0; i < csvArr.length; i++) {
-      if (i === 0) {
-        records.push([csvArr[0]]);
-      } else {
-        if (csvArr[i].Datum === csvArr[i - 1].Datum) {
-          records[remember].push(csvArr[i]);
-        } else {
-          remember += 1;
-          records.push([csvArr[i]]);
-        }
-      }
-    }
-    return records;
-  }
-
-  private removeQuotes(
-    csvRecord: CSVRecord,
-    currentRecord: string[]
-  ): CSVRecord {
+  private removeQuotes(currentRecord: string[]): CSVRecord {
     const centuryPrefix = '20';
-
+    const csvRecord: CSVRecord = new CSVRecord();
     csvRecord.Datum = centuryPrefix.concat(currentRecord[0]?.substring(3, 11));
     csvRecord.Von = currentRecord[1]?.trim().replace(/"/g, '');
     csvRecord.Bis = currentRecord[2]?.trim().replace(/"/g, '');
@@ -196,68 +216,34 @@ export class CsvParserComponent implements OnInit {
     return csvRecord;
   }
 
-  private getHeaderArray(csvRecordsArr: any) {
-    let headers = (<string>csvRecordsArr[0]).split(',');
-    let headerArray = [];
+  private convertTwoDimensionalIntoOneDimensionalArray(
+    csvRecords: CSVRecord[][]
+  ): CSVRecord[] {
+    const recordsOneDimensionalArr: CSVRecord[] = [];
+    for (let i = 0; i < csvRecords.length; i++) {
+      const cube = csvRecords[i];
+      for (let j = 0; j < cube.length; j++) {
+        recordsOneDimensionalArr.push(cube[j]);
+      }
+    }
+    return recordsOneDimensionalArr;
+  }
+
+  private getHeaderArray(csvRecordsArr: string[]): string[] {
+    const headers: string[] = (<string>csvRecordsArr[0]).split(',');
+    const headerArray = [];
     for (let j = 0; j < headers.length; j++) {
       headerArray.push(headers[j]);
     }
     return headerArray;
   }
 
-  private isValidCSVFile(file: any) {
+  private isValidCSVFile(file: File): boolean {
     return file.name.endsWith('.csv');
   }
 
-  private fileReset() {
+  private fileReset(): void {
     this.csvReader.nativeElement.value = '';
     this.records = [];
-  }
-
-  exportAsCsv() {
-    const csvExport: ExportCSVRecord[] = [];
-    if (this.csvDataSets.length > 0) {
-      this.csvDataSets.map((csvDataSet: CSVRecord) => {
-        csvExport.push({
-          Betriebsnummer: this.companyNumber,
-          Nachname: csvDataSet.Nachname,
-          Vorname: csvDataSet.Name,
-          PersonalNr: csvDataSet.PersonalNr,
-          Datum: this.formatDate(csvDataSet.Datum),
-          Beginn: csvDataSet.Von,
-          Ende: csvDataSet.Bis,
-          Pause: csvDataSet.Pause!,
-        });
-      });
-    }
-    if (csvExport.length > 0) {
-      this.exportService.exportToCsv(csvExport);
-    }
-  }
-
-  private formatDate(date: Date) {
-    var d = new Date(date),
-      month = '' + (d.getMonth() + 1),
-      day = '' + d.getDate(),
-      year = d.getFullYear();
-
-    if (month.length < 2) month = '0' + month;
-    if (day.length < 2) day = '0' + day;
-
-    return [day, month, year].join('.');
-  }
-
-  selectFile($event: any) {
-    if ($event) {
-      this.uploadListener($event);
-    }
-  }
-
-  onKeypressEvent(event: any, recordId: string) {
-    this.csvDataSets.forEach((csvRecord: CSVRecord) => {
-      if (csvRecord.id === recordId) {
-        csvRecord.PersonalNr = event.target.value;
-      }
-    });
   }
 }

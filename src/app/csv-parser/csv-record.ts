@@ -30,7 +30,7 @@ export class CSVRecord {
   public Pause?: string;
 }
 
-export interface ExportCSVRecord {
+export interface ExportedCSV {
   Betriebsnummer: string;
   Nachname: string;
   Vorname: string;
