@@ -218,7 +218,6 @@ export class CsvParserComponent {
     csvRecord.Bis = currentRecord[2]?.trim().replace(/"/g, '');
     csvRecord.Dauer = currentRecord[3]?.trim().replace(/"/g, '');
     csvRecord.Lohn = currentRecord[4]?.trim().replace(/"/g, '');
-    // csvRecord."Interner Lohn" = curruntRecord[5].trim();
     csvRecord.Benutzer = currentRecord[6]?.trim().replace(/"/g, '');
     csvRecord.Name = currentRecord[7]
       ?.trim()
@@ -244,10 +243,7 @@ export class CsvParserComponent {
     csvRecord.Stundenlohn = currentRecord[15]?.trim().replace(/"/g, '');
     csvRecord.Festbetrag = currentRecord[16]?.trim().replace(/"/g, '');
     csvRecord.Typ = currentRecord[17]?.trim().replace(/"/g, '');
-    // csvRecord."label.category" = curruntRecord[18].trim();
     csvRecord.Kundennummer = currentRecord[19]?.trim().replace(/"/g, '');
-    // csvRecord."Umsatzsteuer-ID" = curruntRecord[20].trim();
-    // csvRecord.Bestellnummer = curruntRecord[21].trim();
     csvRecord.Pause = '00:00';
 
     return csvRecord;
