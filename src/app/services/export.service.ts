@@ -9,13 +9,13 @@ export class ExportService {
   readonly CSV_EXTENSION = 'exported_csv';
   readonly CSV_TYPE = 'csv';
   readonly options = {
-    fieldSeparator: ',',
-    quoteStrings: '"',
+    fieldSeparator: ';',
+    quoteStrings: '',
     decimalseparator: '.',
     showLabels: true,
     showTitle: false,
     title: '',
-    useBom: true,
+    useBom: false,
     noDownload: false,
     headers: [
       'Betriebs-Nr.',
