@@ -10,7 +10,7 @@ import { MatSnackBar, MatSnackBarConfig } from '@angular/material/snack-bar';
 })
 export class CsvParserComponent {
   @ViewChild('csvReader') csvReader: any;
-  companyNumber = '1020200';
+  companyNumber = '86577526';
   private readonly snackbarDuration = 4000000;
   records: CSVRecord[] = [];
   dataSource: CSVRecord[] = [];
@@ -196,8 +196,12 @@ export class CsvParserComponent {
             const to = new Date(`01/01/2022 ${records[i + 1].Bis}`);
 
             const difference = from.getTime() - to.getTime();
-            const result = new Date(difference).toISOString().slice(11, 19); // HH:MM:SS
-            records[i + 1].Pause = result;
+            console.log('Difference', difference);
+
+            const result = new Date(difference).toISOString().slice(11, 16); // HH:MM:SS
+            // records[i + 1].Pause = result;
+            // calculate pause is no longer necessary
+            records[i + 1].Pause = '00:00';
           }
         }
       }
