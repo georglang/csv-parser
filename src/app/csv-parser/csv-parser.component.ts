@@ -69,6 +69,9 @@ export class CsvParserComponent {
     const csvExport: ExportedCSV[] = [];
     if (this.records.length > 0) {
       this.records.map((csvDataSet: CSVRecord) => {
+        if (csvDataSet?.Projekt === 'Feiertage') {
+          return;
+        }
         csvExport.push({
           Betriebsnummer: this.companyNumber,
           Nachname: csvDataSet.Nachname,
@@ -196,11 +199,9 @@ export class CsvParserComponent {
             const to = new Date(`01/01/2022 ${records[i + 1].Bis}`);
 
             const difference = from.getTime() - to.getTime();
-            console.log('Difference', difference);
-
             const result = new Date(difference).toISOString().slice(11, 16); // HH:MM:SS
-            // records[i + 1].Pause = result;
             // calculate pause is no longer necessary
+            // records[i + 1].Pause = result;
             records[i + 1].Pause = '00:00';
           }
         }
